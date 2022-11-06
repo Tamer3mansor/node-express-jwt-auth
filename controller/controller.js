@@ -5,6 +5,14 @@ const handelerErrors = (err) =>{
     // console.log(err.message ,err.code);
     let error = {email:'',password:''};
     //handel error code
+    if(err.message='incorrect email')
+    {
+      error.email='this email is not registed';
+    }
+    if(err.message='incorrect password')
+    {
+      error.password='this password is incorrect';
+    }
 if (err.code==11000)
 {
     error.email='email already registerd'
@@ -37,14 +45,23 @@ singup_post = async (req,res)=>{
      res.status(201).json({user:User._id});
     } catch (err) {
     const errors =handelerErrors(err);
-    res.status(400).json({errors});
+    res.status(400).json(errors);
     }
 }
 login_get =(req,res)=>{
     res.render('login');
 }
-login_post =(req,res)=>{
-    res.send(req.params);
+login_post =async(req,res)=>{
+  const {email ,password} = req.body;
+  try {
+    const User = await user.login(email,password);
+    const token = creattoken(User._id);
+    res.cookie('jwt',token,{httpOnly:true, maxAge:maxAge*1000  })
+    res.status(200).json({user: User._id});
+  } catch (error) {
+    const errors =handelerErrors(error);
+    res.status(400).json({errors});
+  }
 }
 
 module.exports = {

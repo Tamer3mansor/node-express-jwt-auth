@@ -25,5 +25,17 @@ const salt=await bycript.genSalt();
 this.password =await bycript.hash(this.password,salt)  //this refere to the person that log in 
     next(); 
 }); 
+//static method to login users
+userSchema.statics.login = async function(email , password)
+{
+    const user = await this.findOne({email});
+    if(user){
+        const auth = await bycript.compare(password, user.password);
+        if(auth) return user;
+         throw Error('incorrect password');
+    }
+     throw Error('incorrect email');
+
+}
 const user = mongoose.model('user',userSchema);
 module.exports =   user;
