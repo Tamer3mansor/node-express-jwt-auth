@@ -1,4 +1,5 @@
 const user = require('../Models/userModel');
+const jwt = require('jsonwebtoken');
 //handel Errors
 const handelerErrors = (err) =>{
     // console.log(err.message ,err.code);
@@ -17,7 +18,13 @@ if (err.code==11000)
     }
     return error;
 }
-
+const maxAge = 3*24*60*60;
+ const creattoken = (id)=>{
+    return jwt.sign({id} , 'tamer secret' ,
+     {
+        expiresIn:maxAge
+    });
+ }
 singup_get =(req,res)=>{
     res.render('signup');
 }
@@ -25,10 +32,12 @@ singup_post = async (req,res)=>{
     const { email , password} = req.body;
     try {
      const User = await user.create({email , password}); // it a sync return promise
-     res.status(201).json(User);
+     const token = creattoken(User._id);
+     res.cookie('jwt',token,{httpOnly:true, maxAge:maxAge*1000  })
+     res.status(201).json({user:User._id});
     } catch (err) {
     const errors =handelerErrors(err);
-    res.status(400).json(errors);
+    res.status(400).json({errors});
     }
 }
 login_get =(req,res)=>{
