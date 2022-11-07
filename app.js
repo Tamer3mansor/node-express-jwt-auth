@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const authRoutes = require('./Router/routes');
 const cookiep=require('cookie-parser');
+const {requireAuth , checkuser} = require('./middleware/middleware');
 require('dotenv').config()
 
 const app = express();
@@ -10,8 +11,8 @@ const app = express();
 app.use(express.static('public'));
 app.use(express.json())
 app.use(cookiep());
-app.use('/',authRoutes);
-// view engine
+// app.use('/',authRoutes);
+// // view engine
 app.set('view engine', 'ejs');
 
 // database connection
@@ -21,5 +22,7 @@ mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCr
   .catch((err) => console.log("this connection error" + err));
 
 // routes
+app.get('*' , checkuser);
 app.get('/', (req, res) => res.render('home'));
-app.get('/smoothies', (req, res) => res.render('smoothies'));
+app.get('/smoothies',requireAuth,(req, res) => res.render('smoothies'));
+app.use(authRoutes);

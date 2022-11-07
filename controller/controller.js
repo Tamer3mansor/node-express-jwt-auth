@@ -63,7 +63,10 @@ login_post =async(req,res)=>{
     res.status(400).json({errors});
   }
 }
-
+logout_get= (req,res) =>{
+res.cookie('jwt','',{maxAge:1});
+res.redirect('/');
+}
 module.exports = {
     singup_get,singup_post , login_get , login_post ,
 }
